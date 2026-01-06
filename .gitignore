@@ -205,3 +205,24 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Trading Bot - SENSITIVE FINANCIAL DATA
+# Never commit these files - they contain your trading history, P&L, and strategy performance
+data/                   # SQLite databases with all trading data
+py/data/*.db            # Database files in py/data subdirectory
+py/data/*.db-journal    # SQLite journals
+*.db                    # All database files (backup pattern)
+*.db-journal            # SQLite journal files
+models/                 # Trained ML models (contain your proprietary data)
+py/models/*.joblib      # Model files in py/models subdirectory
+py/models/*.pkl         # Pickle files
+py/models/*.h5          # Keras/TensorFlow models
+*.joblib                # All joblib files (backup pattern)
+*.pkl                   # Pickle files
+*.h5                    # Keras/TensorFlow models
+exported_data.csv       # Exported analysis data
+my_data.csv            # User exports
+*_backup.db            # Database backups
+
+# Automatically generated version file
+py/trading_bot/_version.py
