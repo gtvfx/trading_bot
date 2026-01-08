@@ -5,7 +5,7 @@ Shows how to customize database and model paths using environment variables.
 """
 
 import os
-from trading_bot import TradingBot, TradingConfig, DB_PATH, MODEL_PATH
+from trading_bot import TradingConfig, DB_PATH, MODEL_PATH
 
 def example_with_environment_variables():
     """Example using environment variables."""

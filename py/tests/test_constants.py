@@ -13,8 +13,6 @@ def test_constants_import():
     print("✓ Constants imported successfully")
     print(f"  DB_PATH: {DB_PATH}")
     print(f"  MODEL_PATH: {MODEL_PATH}")
-    
-    return True
 
 def test_config_uses_constants():
     """Test that config uses constants."""
@@ -28,8 +26,6 @@ def test_config_uses_constants():
     print("✓ Config uses constants correctly")
     print(f"  config.db_path: {config.db_path}")
     print(f"  config.model_path: {config.model_path}")
-    
-    return True
 
 def test_environment_override():
     """Test environment variable override."""
@@ -49,8 +45,6 @@ def test_environment_override():
     # Cleanup
     del os.environ["TRADING_BOT_DB"]
     del os.environ["TRADING_BOT_MODELS"]
-    
-    return True
 
 if __name__ == "__main__":
     print("="*70)

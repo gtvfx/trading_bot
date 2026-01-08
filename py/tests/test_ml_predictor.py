@@ -2,10 +2,8 @@
 
 import pytest
 import pandas as pd
-import numpy as np
-import os
 from pathlib import Path
-from trading_bot import MLPredictor, TradingConfig, TechnicalIndicators
+from trading_bot import MLPredictor
 
 
 def test_ml_predictor_initialization(temp_model_dir):
@@ -199,6 +197,7 @@ def test_feature_importance(sample_df_with_indicators, temp_model_dir):
     
     # Random Forest should have feature_importances_
     assert hasattr(predictor.model, 'feature_importances_')
+    assert predictor.model is not None
     assert len(predictor.model.feature_importances_) > 0
 
 

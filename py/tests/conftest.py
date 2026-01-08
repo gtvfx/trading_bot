@@ -33,7 +33,7 @@ def sample_ohlcv_data():
     dates = pd.date_range(start='2024-01-01', periods=100, freq='h')
     
     # Generate realistic price data
-    base_price = 50000
+    base_price = 50000.00
     prices = [base_price]
     for _ in range(99):
         change = prices[-1] * (0.98 + 0.04 * np.random.random())

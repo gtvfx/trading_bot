@@ -4,7 +4,6 @@ This example demonstrates the complete workflow with persistent learning.
 
 """
 
-from datetime import datetime, timedelta
 from trading_bot import TradingBot, TradingConfig, DataCurator
 
 
