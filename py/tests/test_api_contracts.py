@@ -33,6 +33,7 @@ class TestTradingConfigAPI:
             'ml_training_days', 'ml_retrain_interval', 'ml_lookback_periods',
             'lookback_window', 'candle_granularity', 'refresh_interval',
             'backtest_start_balance', 'backtest_commission_percent',
+            'paper_trading', 'paper_trading_balance',  # Paper trading support
             'db_path', 'model_path'
         }
         

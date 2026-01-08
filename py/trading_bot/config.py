@@ -72,6 +72,10 @@ class TradingConfig:
     backtest_start_balance: float = 10000.0
     backtest_commission_percent: float = 0.1  # Trading fee %
     
+    # Paper Trading
+    paper_trading: bool = False  # Simulate trades without executing real orders
+    paper_trading_balance: float = 10000.0  # Starting balance for paper trading
+    
     def __post_init__(self):
         """Validate configuration parameters."""
         if self.position_size_percent <= 0 or self.position_size_percent > 100:

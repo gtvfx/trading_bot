@@ -98,6 +98,10 @@ class TradingBot:
         self.ml_predictor = None
         self.strategy = None
         self.market_data_cache: Dict[str, pd.DataFrame] = {}
+        
+        # Paper trading state
+        self.paper_balance = config.paper_trading_balance if config.paper_trading else 0.0
+        self.paper_equity = 0.0  # Value of open positions
         self.daily_pnl = 0.0
         self.daily_start_balance = 0.0
         self.iteration_count = 0
@@ -256,7 +260,10 @@ class TradingBot:
         """
         try:
             # Calculate position size
-            buying_power = self.client.get_buying_power()
+            if self.config.paper_trading:
+                buying_power = self.paper_balance
+            else:
+                buying_power = self.client.get_buying_power()
             position_value = buying_power * (self.config.position_size_percent / 100)
             
             current_price = df['close'].iloc[-1]
@@ -265,13 +272,28 @@ class TradingBot:
             # Determine side
             side = "buy" if signal == Signal.BUY else "sell"
             
-            # Place market order
-            print(f"\n📊 Opening {side.upper()} position: {symbol}")
+            # Place market order (or simulate in paper trading)
+            mode_str = "[PAPER]" if self.config.paper_trading else ""
+            print(f"\n📊 {mode_str} Opening {side.upper()} position: {symbol}")
             print(f"   Price: ${current_price:,.2f}")
             print(f"   Quantity: {quantity:.8f}")
             print(f"   Confidence: {confidence:.2%}")
             
-            order = self.client.place_market_order(symbol, side, quantity)
+            if self.config.paper_trading:
+                # Simulate order execution
+                order = {
+                    'id': f'paper_{symbol}_{datetime.now().timestamp()}',
+                    'status': 'filled',
+                    'symbol': symbol,
+                    'side': side,
+                    'quantity': quantity,
+                    'price': current_price
+                }
+                # Deduct from paper balance
+                self.paper_balance -= position_value
+                self.paper_equity += position_value
+            else:
+                order = self.client.place_market_order(symbol, side, quantity)
             
             if order and order.get('status') in ['filled', 'open']:
                 # Create position object
@@ -352,16 +374,39 @@ class TradingBot:
             # Determine opposite side for closing
             close_side = "sell" if position.side == "buy" else "buy"
             
-            # Place market order to close
-            order = self.client.place_market_order(
-                symbol,
-                close_side,
-                position.quantity
-            )
+            # Place market order to close (or simulate in paper trading)
+            if self.config.paper_trading:
+                current_price = self.client.get_current_price(symbol)
+                if not current_price:
+                    print(f"❌ Could not get current price for {symbol}")
+                    return
+                
+                # Simulate closing order
+                order = {
+                    'id': f'paper_close_{symbol}_{datetime.now().timestamp()}',
+                    'status': 'filled',
+                    'symbol': symbol,
+                    'side': close_side,
+                    'quantity': position.quantity,
+                    'price': current_price
+                }
+                # Calculate position value at close and update balances
+                position_value = position.quantity * current_price
+                self.paper_balance += position_value
+                self.paper_equity -= position.quantity * position.entry_price
+            else:
+                order = self.client.place_market_order(
+                    symbol,
+                    close_side,
+                    position.quantity
+                )
             
             if order and order.get('status') in ['filled', 'open']:
                 # Update daily P&L
-                current_price = self.client.get_current_price(symbol)
+                if self.config.paper_trading:
+                    current_price = order['price']
+                else:
+                    current_price = self.client.get_current_price(symbol)
                 if current_price:
                     pnl = position.get_pnl(current_price)
                     pnl_pct = position.get_pnl_percent(current_price)
@@ -437,12 +482,20 @@ class TradingBot:
     def print_status(self):
         """Print current bot status."""
         print("\n" + "="*70)
-        print(f"Trading Bot Status - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        mode_str = "[PAPER TRADING MODE] " if self.config.paper_trading else ""
+        print(f"{mode_str}Trading Bot Status - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         print("="*70)
         
         # Account info
-        buying_power = self.client.get_buying_power()
-        print(f"\nBuying Power: ${buying_power:,.2f}")
+        if self.config.paper_trading:
+            buying_power = self.paper_balance
+            total_value = self.paper_balance + self.paper_equity
+            print(f"\nPaper Trading Balance: ${buying_power:,.2f}")
+            print(f"Paper Equity Value: ${self.paper_equity:,.2f}")
+            print(f"Total Portfolio Value: ${total_value:,.2f}")
+        else:
+            buying_power = self.client.get_buying_power()
+            print(f"\nBuying Power: ${buying_power:,.2f}")
         print(f"Daily P&L: ${self.daily_pnl:+,.2f}")
         
         # ML Performance (if enabled)
@@ -492,13 +545,23 @@ class TradingBot:
         
         return True
     
-    def run(self, iterations: Optional[int] = None):
+    def run(self, iterations: Optional[int] = None, paper_trading: Optional[bool] = None):
         """Run the trading bot.
         
         Args:
             iterations: Number of iterations to run (None for infinite)
+            paper_trading: Override config paper_trading setting (True to simulate trades)
 
         """
+        # Override paper_trading setting if provided
+        if paper_trading is not None:
+            self.config.paper_trading = paper_trading
+            if paper_trading:
+                self.paper_balance = self.config.paper_trading_balance
+                self.paper_equity = 0.0
+                print(f"\n🧪 Paper Trading Mode Enabled")
+                print(f"Starting Balance: ${self.paper_balance:,.2f}")
+        
         self.initialize()
         
         iteration = 0
