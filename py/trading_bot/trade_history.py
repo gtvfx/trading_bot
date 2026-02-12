@@ -8,7 +8,7 @@ for continuous learning and performance analysis.
 import sqlite3
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional, Dict, Any
 from ._constants import DB_PATH
 

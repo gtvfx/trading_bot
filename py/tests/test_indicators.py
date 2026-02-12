@@ -1,8 +1,6 @@
 """Tests for indicators.py module - matching actual API."""
 
-import pytest
 import pandas as pd
-import numpy as np
 from trading_bot import TechnicalIndicators, TradingConfig
 
 

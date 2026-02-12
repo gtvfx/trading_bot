@@ -1,6 +1,5 @@
 """Tests for data_curator.py module - matching actual API."""
 
-import pytest
 import pandas as pd
 from datetime import datetime, timedelta
 from trading_bot import DataCurator, TradeHistory

@@ -1,9 +1,7 @@
 """Tests for strategy.py module - matching actual API."""
 
-import pytest
 import pandas as pd
-import numpy as np
-from trading_bot import TradingStrategy, TradingConfig, TechnicalIndicators, MLPredictor
+from trading_bot import TradingStrategy, TradingConfig, MLPredictor
 from trading_bot.strategy import Signal
 
 

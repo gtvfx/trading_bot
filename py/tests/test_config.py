@@ -1,7 +1,5 @@
 """Tests for config.py module - matching actual API."""
 
-import os
-import pytest
 from trading_bot import TradingConfig
 
 
