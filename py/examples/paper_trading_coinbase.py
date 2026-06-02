@@ -30,8 +30,6 @@ from datetime import datetime, timedelta
 
 # Coinbase imports
 try:
-    import sys
-    sys.path.insert(0, r'r:\repo\coinbase\py')
     from cb.trading import CoinbaseClient, KeyManager
     from cb.personal import get_keys, setup_keys
 except ImportError:

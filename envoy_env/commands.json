@@ -1,0 +1,9 @@
+{
+    "ptrade_cb": {
+        "description": "Coinbase paper trading example",
+        "environment": [
+            "python_env.json"
+        ],
+        "alias": ["python", "-m", "examples.paper_trading_coinbase"]
+    }
+}
