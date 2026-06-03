@@ -40,6 +40,21 @@ def test_store_market_data(temp_db_path, sample_ohlcv_data):
     assert count == len(sample_ohlcv_data)
 
 
+def test_store_market_data_ignores_duplicate_candles(temp_db_path, sample_ohlcv_data):
+    """Test storing overlapping market data does not duplicate candles."""
+    history = TradeHistory(temp_db_path)
+
+    history.store_market_data('BTC-USD', sample_ohlcv_data)
+    history.store_market_data('BTC-USD', sample_ohlcv_data)
+
+    conn = sqlite3.connect(temp_db_path)
+    query = "SELECT COUNT(*) FROM market_data WHERE symbol = 'BTC-USD'"
+    count = pd.read_sql_query(query, conn).iloc[0, 0]
+    conn.close()
+
+    assert count == len(sample_ohlcv_data)
+
+
 def test_store_prediction(temp_db_path):
     """Test storing predictions."""
     history = TradeHistory(temp_db_path)

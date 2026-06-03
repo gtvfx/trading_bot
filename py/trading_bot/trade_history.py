@@ -131,11 +131,33 @@ class TradeHistory:
         
         df_copy = df_copy[[col for col in cols_to_keep if col in df_copy.columns]]
         
+        if df_copy.empty:
+            conn.close()
+            return
+
+        columns = list(df_copy.columns)
+        placeholders = ", ".join(["?"] * len(columns))
+        column_names = ", ".join(columns)
+        insert_sql = f"""
+            INSERT OR IGNORE INTO market_data ({column_names})
+            VALUES ({placeholders})
+        """
+
+        def normalize_value(value):
+            if pd.isna(value):
+                return None
+            if isinstance(value, pd.Timestamp):
+                return value.to_pydatetime()
+            return value
+
+        rows = [
+            tuple(normalize_value(value) for value in row)
+            for row in df_copy.itertuples(index=False, name=None)
+        ]
+
         try:
-            df_copy.to_sql('market_data', conn, if_exists='append', index=False)
-        except sqlite3.IntegrityError:
-            # Data already exists, skip
-            pass
+            conn.executemany(insert_sql, rows)
+            conn.commit()
         finally:
             conn.close()
     
